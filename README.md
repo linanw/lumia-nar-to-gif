@@ -7,7 +7,7 @@ Code is Python embedded in a Windows CMD file.
 1. Python 3.x
 2. ffmpeg 7.x or above
 ## Usage
-lumia_narto_gif.cmd <file_path\file_name.nar>
+lumia_nar_to_gif.cmd <file_path\file_name.nar>
 
 Use gif_all.cmd to convert all *.nar files in curretn folder.
 
