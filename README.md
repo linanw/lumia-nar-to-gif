@@ -14,4 +14,4 @@ Use gif_all.cmd to convert all *.nar files in curretn folder.
 ## Example
 nar file in example folder, was coverted to gif below.
 
-![sample gif](./Sample/WP_20131231_12_20_24_Smart.gif)
+![sample gif](./example/WP_20131231_12_20_24_Smart.gif)
