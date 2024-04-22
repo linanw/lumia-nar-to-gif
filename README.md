@@ -9,11 +9,11 @@ Code is Python embedded in a Windows CMD file.
 3. Pillow module (optional, help to set output gif file's modification date time as the nar's taken time)
    - pip install Pillow
 ## Usage
-lumia_narto_gif.cmd <file_path\file_name.nar>
+lumia_nar_to_gif.cmd <file_path\file_name.nar>
 
 Use gif_all.cmd to convert all *.nar files in curretn folder.
 
 ## Example
 nar file in example folder, was coverted to gif below.
 
-![sample gif](./Sample/WP_20131231_12_20_24_Smart.gif)
+![sample gif](./example/WP_20131231_12_20_24_Smart.gif)
