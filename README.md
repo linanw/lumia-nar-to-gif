@@ -1,7 +1,7 @@
 # Convert Nokia Lumia *.nar file to gif animation
 Code is Python embedded in a Windows CMD file. 
 ## Compatibility
-1. *_Cinemegraph.nar
+1. *_Cinemagraph.nar
 2. *_Smart.nar
 ## prerequisite
 1. Python 3.x
