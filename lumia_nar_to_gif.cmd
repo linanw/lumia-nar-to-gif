@@ -149,6 +149,38 @@ result = subprocess.run(command, shell=True, capture_output=True, text=True)
 # Print the output
 print(result.stdout)
 
+# Check if Pillow module is installed
+try:
+    # read taken date from 0.jpg's exif
+    from PIL import Image
+    from PIL.ExifTags import TAGS
+    import PIL
+    img = Image.open(os.path.join(destination_folder, '0.jpg'))
+    exif_data = img._getexif()
+    taken_date = None
+    if exif_data is not None:
+        for tag, value in exif_data.items():
+            if TAGS.get(tag) == 'DateTimeOriginal':
+                taken_date = value
+                break
+    img.close()
+    # Print the taken date
+    print(f"The nar's taken date is found: {taken_date}")
+    # Set the output gif's modification date time as nar's taken date time
+    os.utime(output_file, (os.path.getatime(output_file), time.mktime(time.strptime(taken_date, "%Y:%m:%d %H:%M:%S"))))
+    print(f"The output gif's modification date time is set as nar's taken date time: {taken_date}")
+except ImportError:
+    print("Pillow module is not installed.")
+    print("The output gif's modification date time will be set as nar content modification date time.")
+    print("If you want to set the output gif's modification date time as nar's taken date time, please install Pillow module.")
+    print("You can choose to install Pillow using following command: pip install Pillow")
+    print("Once you have installed Pillow, please run the script again to set the output gif's modification date time as nar's taken date time.")
+    # get the nar modification date time
+    nar_modification_date_time =  os.path.getmtime(source_file)
+    print(f"The nar's content modification date time is: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(nar_modification_date_time))}")
+    # Set the output gif's modification date time as nar modification date time
+    os.utime(output_file, (os.path.getatime(output_file), nar_modification_date_time))
+
 # Remove the temp folder
 shutil.rmtree(destination_folder)
 

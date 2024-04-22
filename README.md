@@ -6,6 +6,8 @@ Code is Python embedded in a Windows CMD file.
 ## prerequisite
 1. Python 3.x
 2. ffmpeg 7.x or above
+3. Pillow module (optional, help to set output gif file's modification date time as the nar's taken time)
+   - pip install Pillow
 ## Usage
 lumia_narto_gif.cmd <file_path\file_name.nar>
 
