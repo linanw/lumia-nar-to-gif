@@ -116,10 +116,13 @@ for file in files:
 # generate file list to a file
 files = os.listdir(destination_folder)
 file_list_file = os.path.join(destination_folder, 'file_list.txt')
+first_jpg_file = None
 with open(file_list_file, 'w') as f:
     files.sort()
     for file in files:
-        if not file.endswith('.jpg'): continue        
+        if not file.endswith('.jpg'): continue
+        if first_jpg_file is None:
+            first_jpg_file = file        
         # Get the file name without extension
         file_name = os.path.splitext(file)[0]
         # Check if the file name is a number
@@ -155,7 +158,7 @@ try:
     from PIL import Image
     from PIL.ExifTags import TAGS
     import PIL
-    img = Image.open(os.path.join(destination_folder, '0.jpg'))
+    img = Image.open(os.path.join(destination_folder, first_jpg_file))
     exif_data = img._getexif()
     taken_date = None
     if exif_data is not None:
