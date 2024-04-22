@@ -35,6 +35,7 @@ file_type = os.path.splitext(os.path.basename(source_file))[0].split('_')[-1]
 
 pose = '4'
 framerate = '5'
+captureDateAndTime = None
 if file_type == 'Cinemagraph':
     # Path to the XML file
     xml_file = os.path.join(destination_folder,'cinemagraph.xml')
@@ -76,6 +77,16 @@ if file_type == 'Cinemagraph':
     elif captureOrientation == 'LandscapeRight':
         pose = '2'
 
+    # Find the captureDateAndTime_field you want to read
+    captureDateAndTime_field = root.find('captureDateAndTime')
+    # Check if the captureDateAndTime_field exists
+    if captureDateAndTime_field is not None:
+        # Get the value of the captureDateAndTime_field
+        captureDateAndTime = captureDateAndTime_field.text
+        
+        # Print the captureDateAndTime_field value
+        print(f"The value of the captureDateAndTime_field is: {captureDateAndTime}")
+
 druation = 1/int(framerate)
 
 # Get a list of all files in the source folder
@@ -116,10 +127,13 @@ for file in files:
 # generate file list to a file
 files = os.listdir(destination_folder)
 file_list_file = os.path.join(destination_folder, 'file_list.txt')
+first_jpg_file = None
 with open(file_list_file, 'w') as f:
     files.sort()
     for file in files:
-        if not file.endswith('.jpg'): continue        
+        if not file.endswith('.jpg'): continue
+        if first_jpg_file is None:
+            first_jpg_file = file        
         # Get the file name without extension
         file_name = os.path.splitext(file)[0]
         # Check if the file name is a number
@@ -149,37 +163,45 @@ result = subprocess.run(command, shell=True, capture_output=True, text=True)
 # Print the output
 print(result.stdout)
 
-# Check if Pillow module is installed
-try:
-    # read taken date from 0.jpg's exif
-    from PIL import Image
-    from PIL.ExifTags import TAGS
-    import PIL
-    img = Image.open(os.path.join(destination_folder, '0.jpg'))
-    exif_data = img._getexif()
-    taken_date = None
-    if exif_data is not None:
-        for tag, value in exif_data.items():
-            if TAGS.get(tag) == 'DateTimeOriginal':
-                taken_date = value
-                break
-    img.close()
-    # Print the taken date
-    print(f"The nar's taken date is found: {taken_date}")
-    # Set the output gif's modification date time as nar's taken date time
-    os.utime(output_file, (os.path.getatime(output_file), time.mktime(time.strptime(taken_date, "%Y:%m:%d %H:%M:%S"))))
-    print(f"The output gif's modification date time is set as nar's taken date time: {taken_date}")
-except ImportError:
-    print("Pillow module is not installed.")
-    print("The output gif's modification date time will be set as nar content modification date time.")
-    print("If you want to set the output gif's modification date time as nar's taken date time, please install Pillow module.")
-    print("You can choose to install Pillow using following command: pip install Pillow")
-    print("Once you have installed Pillow, please run the script again to set the output gif's modification date time as nar's taken date time.")
-    # get the nar modification date time
-    nar_modification_date_time =  os.path.getmtime(source_file)
-    print(f"The nar's content modification date time is: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(nar_modification_date_time))}")
-    # Set the output gif's modification date time as nar modification date time
-    os.utime(output_file, (os.path.getatime(output_file), nar_modification_date_time))
+if file_type == 'Cinemagraph':
+    # Set the output gif's modification date time as captureDateAndTime
+    if captureDateAndTime is not None:
+        os.utime(output_file, (os.path.getatime(output_file), time.mktime(time.strptime(captureDateAndTime, "%Y-%m-%dT%H:%M:%S%z"))))
+        print(f"The output gif's modification date time is set as captureDateAndTime: {captureDateAndTime}")
+    else:
+        print("captureDateAndTime is not found in the XML file.")
+else:
+    # Check if Pillow module is installed
+    try:
+        # read taken date from 0.jpg's exif
+        from PIL import Image
+        from PIL.ExifTags import TAGS
+        import PIL
+        img = Image.open(os.path.join(destination_folder, first_jpg_file))
+        exif_data = img._getexif()
+        taken_date = None
+        if exif_data is not None:
+            for tag, value in exif_data.items():
+                if TAGS.get(tag) == 'DateTimeOriginal':
+                    taken_date = value
+                    break
+        img.close()
+        # Print the taken date
+        print(f"The nar's taken date is found: {taken_date}")
+        # Set the output gif's modification date time as nar's taken date time
+        os.utime(output_file, (os.path.getatime(output_file), time.mktime(time.strptime(taken_date, "%Y:%m:%d %H:%M:%S"))))
+        print(f"The output gif's modification date time is set as nar's taken date time: {taken_date}")
+    except ImportError:
+        print("Pillow module is not installed.")
+        print("The output gif's modification date time will be set as nar content modification date time.")
+        print("If you want to set the output gif's modification date time as nar's taken date time, please install Pillow module.")
+        print("You can choose to install Pillow using following command: pip install Pillow")
+        print("Once you have installed Pillow, please run the script again to set the output gif's modification date time as nar's taken date time.")
+        # get the nar modification date time
+        nar_modification_date_time =  os.path.getmtime(source_file)
+        print(f"The nar's content modification date time is: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(nar_modification_date_time))}")
+        # Set the output gif's modification date time as nar modification date time
+        os.utime(output_file, (os.path.getatime(output_file), nar_modification_date_time))
 
 # Remove the temp folder
 shutil.rmtree(destination_folder)
